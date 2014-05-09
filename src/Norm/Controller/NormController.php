@@ -95,7 +95,7 @@ class NormController extends RestController
         $this->data['entry'] = $entry;
     }
 
-    public function read($id)
+    public function read($id, callable $callback = null)
     {
         $this->data['entry'] = $this->collection->findOne($id);
 

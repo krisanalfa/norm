@@ -152,7 +152,10 @@ class Collection extends Hookable implements \JsonKit\JsonSerializer
     {
         $cursor = $this->find($criteria);
         $this->criteria = null;
-        return $cursor->getNext();
+
+        $retVal = $cursor->getNext();
+
+        return $retVal;
     }
 
     // DEPRECATED reekoheek: moved to observer

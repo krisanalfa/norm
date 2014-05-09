@@ -62,29 +62,10 @@ class Cursor implements ICursor, \JsonKit\JsonSerializer
         $result = array();
 
         foreach ($this as $key => $value) {
-            if ($value instanceof Model) {
-                $value = $value->toArray();
-            }
-
-            if ($normalize) {
-                $value = $this->normalize($value);
-            }
-
             $result[] = $value;
         }
 
         return $result;
-    }
-
-    public function normalize(array $object)
-    {
-        foreach ($object as $key => $value) {
-            if (is_object($value)) {
-                $object[$key] = $value->normalize();
-            }
-        }
-
-        return $object;
     }
 
     public function limit($num)
