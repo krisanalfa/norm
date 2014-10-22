@@ -173,34 +173,34 @@ class Reference extends Field
     //     return $value;
     // }
 
-    // public function cell($value, $entry = null)
-    // {
-    //     $label = '';
+    public function cell($value, $entry = null)
+    {
+        $label = '';
 
-    //     if (empty($value)) {
-    //         return '';
-    //     }
+        if (empty($value)) {
+            return '';
+        }
 
-    //     if (is_array($this['foreign'])) {
-    //         return $this['foreign'][$value];
-    //     } elseif (is_callable($this['foreign'])) {
-    //         return $this['foreign']($value);
-    //     } elseif (is_null($this['foreignKey'])) {
-    //         $model = Norm::factory($this['foreign'])->findOne($value);
-    //     } else {
-    //         $criteria = array($this['foreignKey'] => $value);
-    //         $model = Norm::factory($this['foreign'])->findOne($criteria);
-    //     }
+        if (is_array($this['foreign'])) {
+            return $this['foreign'][$value];
+        } elseif (is_callable($this['foreign'])) {
+            return $this['foreign']($value);
+        } elseif (is_null($this['foreignKey'])) {
+            $model = Norm::factory($this['foreign'])->findOne($value);
+        } else {
+            $criteria = array($this['foreignKey'] => $value);
+            $model = Norm::factory($this['foreign'])->findOne($criteria);
+        }
 
-    //     if (is_callable($this['foreignLabel'])) {
-    //         $getLabel = $this['foreignLabel'];
-    //         $label = $getLabel($model);
-    //     } else {
-    //         if ($model) {
-    //             $label = $model->get($this['foreignLabel']);
-    //         }
-    //     }
+        if (is_callable($this['foreignLabel'])) {
+            $getLabel = $this['foreignLabel'];
+            $label = $getLabel($model);
+        } else {
+            if ($model) {
+                $label = $model->get($this['foreignLabel']);
+            }
+        }
 
-    //     return $label;
-    // }
+        return $label;
+    }
 }

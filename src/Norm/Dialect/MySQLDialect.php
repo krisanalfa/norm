@@ -2,7 +2,8 @@
 
 namespace Norm\Dialect;
 
-class MySQLDialect extends SQLDialect {
+class MySQLDialect extends SQLDialect
+{
     protected $FIELD_MAP = array(
         'Norm\Schema\Boolean' => 'TINYINT',
         'Norm\Schema\DateTime' => 'DATETIME',
@@ -13,7 +14,8 @@ class MySQLDialect extends SQLDialect {
         'Norm\Schema\Text' => 'TEXT',
     );
 
-    public function listCollections() {
+    public function listCollections()
+    {
         $statement = $this->raw->query("SHOW TABLES");
         $result = $statement->fetchAll();
         $retval = array();
@@ -23,7 +25,8 @@ class MySQLDialect extends SQLDialect {
         return $retval;
     }
 
-    public function prepareCollection($collection) {
+    public function prepareCollection($collection)
+    {
         throw new \Exception('Not implemented yet! Please recheck the method later!');
         $collectionName = $collection->name;
         $collectionSchema = $collection->schema();
@@ -50,7 +53,7 @@ class MySQLDialect extends SQLDialect {
                 'name' => 'id',
                 'type' => 'INTEGER',
                 'notnull' => '1',
-                'dflt_value' => NULL,
+                'dflt_value' => null,
                 'pk' => '1',
                 'autoincrement' => '1',
             ),
@@ -62,7 +65,7 @@ class MySQLDialect extends SQLDialect {
         foreach ($collectionSchema as $schemaField) {
             $existingField = isset($fields[$schemaField['name']]) ? $fields[$schemaField['name']] : array();
             $clazz = get_class($schemaField);
-            $type = (isset($this->FIELD_MAP[$clazz])) ? $this->FIELD_MAP[$clazz] : NULL;
+            $type = (isset($this->FIELD_MAP[$clazz])) ? $this->FIELD_MAP[$clazz] : null;
 
             if (!isset($existingField['type']) || $existingField['type'] !== $type) {
                 $isUpdated = true;
@@ -133,6 +136,92 @@ class MySQLDialect extends SQLDialect {
             $sql = 'ALTER TABLE "'.$tmpTable.'" RENAME TO "'.$collectionName.'"';
             $this->raw->query($sql);
         }
+    }
 
+    public function grammarExpression($key, $value, $collection, &$data)
+    {
+
+        if ($key === '!or' || $key === '!and') {
+            $wheres = array();
+            foreach ($value as $subValues) {
+
+                $subWheres = array();
+
+                foreach ($subValues as $k => $v) {
+                    $subWheres[] = $this->grammarExpression($k, $v, $collection, $data);
+                }
+
+                switch (count($subWheres)) {
+                    case 0:
+                        break;
+                    case 1:
+                        $wheres[] = implode(' AND ', $subWheres);
+                        break;
+                    default:
+                        $wheres[] = '('.implode(' AND ', $subWheres).')';
+                        break;
+                }
+            }
+            return '('.implode(' '.strtoupper(substr($key, 1)).' ', $wheres).')';
+        }
+
+        $splitted = explode('!', $key, 2);
+
+        $field = $splitted[0];
+
+        $schema = $collection->schema($field);
+
+        if ($field == '$id') {
+            $field = 'id';
+        } elseif (strlen($field) > 0 && $field[0] === '$') {
+            $field = 'h_'.substr($field, 1);
+        }
+
+        $operator = '=';
+        $multiValue = false;
+        $fValue = $value;
+
+        if (isset($splitted[1])) {
+            switch ($splitted[1]) {
+                case 'like':
+                    $fValue = "%$value%";
+                    break;
+                case 'lte':
+                    $operator = '<=';
+                    break;
+                case 'lt':
+                    $operator = '<';
+                    break;
+                case 'gte':
+                    $operator = '>=';
+                    break;
+                case 'gt':
+                    $operator = '>';
+                    break;
+                case 'regex':
+                    throw new \Exception('Operator regex is not supported to query.');
+                    // return array($field, array('$regex', new \MongoRegex($value)));
+                case 'in':
+                case 'nin':
+                    throw new \Exception('Operator regex is not supported to query.');
+                    // $operator = '$'.$splitted[1];
+                    // $multiValue = true;
+                    // break;
+                default:
+                    throw new \Exception('Operator regex is not supported to query.');
+                    // $operator = '$'.$splitted[1];
+                    // break;
+            }
+        }
+
+        $fk = 'f'.$this->expressionCounter++;
+        $data[$fk] = $fValue;
+        $sql = $field.' '.$operator.' :'.$fk;
+
+        if (empty($fValue)) {
+            $sql = '('.$sql.' OR '.$field.' is null)';
+        }
+
+        return $sql;
     }
 }

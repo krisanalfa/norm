@@ -19,11 +19,9 @@ class Password extends Field
     public function formatInput($value, $entry = null)
     {
         return '
-            <div class="row">
                 <input class="span-6" type="password" name="'.$this['name'].
                 '" value="" placeholder="Password" autocomplete="off" /><input class="span-6" type="password" name="'.
                 $this['name'].'_confirmation" value="" placeholder="Password confirmation" autocomplete="off" />
-            </div>
         ';
     }
 

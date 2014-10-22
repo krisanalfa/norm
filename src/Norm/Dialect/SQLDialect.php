@@ -208,7 +208,12 @@ class SQLDialect
     public function insert($collectionName, $data)
     {
         $sql = $this->grammarInsert($collectionName, $data);
-        return $this->execute($sql, $data);
+        $result = $this->execute($sql, $data);
+
+        $id = null;
+        if($result) $id = $this->raw->lastInsertId();
+        
+        return $id;
     }
 
     public function grammarUpdate($collectionName, $data)

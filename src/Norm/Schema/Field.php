@@ -204,21 +204,21 @@ abstract class Field implements \ArrayAccess
 
     // DEPRECATED method: input, cell, cellRaw, getInputInRaw replaced with render with format
 
-    // public function cell($value, $entry = null)
-    // {
-    //     if ($this->has('cellFormat') && $format = $this['cellFormat']) {
-    //         return $format($value, $entry, $this);
-    //     }
-    //     return $value;
-    // }
-    //
-    // public function cellRaw($value)
-    // {
-    //     return $value;
-    // }
+    public function cell($value, $entry = null)
+    {
+        if ($this->has('cellFormat') && $format = $this['cellFormat']) {
+            return $format($value, $entry, $this);
+        }
+        return $value;
+    }
+    
+    public function cellRaw($value)
+    {
+        return $value;
+    }
 
-    // public function getInputInRaw($value)
-    // {
-    //     return '<span class="field">'.$value.'</span>';
-    // }
+    public function getInputInRaw($value)
+    {
+        return '<span class="field">'.$value.'</span>';
+    }
 }

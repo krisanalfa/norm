@@ -45,7 +45,8 @@ class Collection extends Hookable implements \JsonKit\JsonSerializer
         }
 
         $this->resetCache();
-
+        
+        $this->applyHook('initializing', $this, $options);
     }
 
     public function option($key)
@@ -85,6 +86,10 @@ class Collection extends Hookable implements \JsonKit\JsonSerializer
 
         if (method_exists($observer, 'attached')) {
             $this->hook('attached', array($observer, 'attached'));
+        }
+
+        if (method_exists($observer, 'initializing')) {
+            $this->hook('initializing', array($observer, 'initializing'));
         }
     }
 

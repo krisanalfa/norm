@@ -106,7 +106,6 @@ abstract class Connection extends Hookable
 
     public function marshall($object)
     {
-
         if (is_array($object)) {
             $result = array();
             foreach ($object as $key => $value) {
@@ -122,8 +121,8 @@ abstract class Connection extends Hookable
             return $result;
         } elseif ($object instanceof \Norm\Type\DateTime) {
             return $object->format('c');
-        } elseif ($object instanceof \Norm\Type\NormArray) {
-            return json_encode($object->toArray());
+        } elseif ($object instanceof \Norm\Type\Collection) {
+            return json_encode($object->jsonSerialize());
         } elseif (method_exists($object, 'marshall')) {
             return $object->marshall();
         } else {
