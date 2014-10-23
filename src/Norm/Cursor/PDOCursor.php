@@ -136,6 +136,7 @@ class PDOCursor implements ICursor
             $criteria['id'] = $criteria['$id'];
             unset($criteria['$id']);
         }
+
         return $criteria;
     }
 
@@ -161,6 +162,10 @@ class PDOCursor implements ICursor
                 $sql .= ' WHERE '.implode(' AND ', $wheres);
             }
 
+            if ($this->limit) {
+                $sql .= ' LIMIT '.$this->limit;
+            }
+
             $this->statement = $this->collection->connection->getRaw()->prepare($sql);
 
             $this->statement->execute($data);
@@ -183,6 +188,7 @@ class PDOCursor implements ICursor
         if (!empty($fields)) {
             throw new \Exception('Not implemented yet!');
         }
+
         return $this;
     }
 
@@ -213,7 +219,9 @@ class PDOCursor implements ICursor
         if (func_num_args() === 0) {
             return $this->limit;
         }
+
         $this->limit = (int) $num;
+
         return $this;
     }
 
@@ -242,6 +250,7 @@ class PDOCursor implements ICursor
             return $this->skip;
         }
         $this->skip = (int) $num;
+
         return $this;
     }
 }
