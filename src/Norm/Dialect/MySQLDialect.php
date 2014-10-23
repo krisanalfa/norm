@@ -1,6 +1,7 @@
-<?php
+<?php namespace Norm\Dialect;
 
-namespace Norm\Dialect;
+use Exception;
+use PDO;
 
 class MySQLDialect extends SQLDialect
 {
@@ -22,18 +23,19 @@ class MySQLDialect extends SQLDialect
         foreach ($result as $key => $value) {
             $retval[] = $value[0];
         }
+
         return $retval;
     }
 
     public function prepareCollection($collection)
     {
-        throw new \Exception('Not implemented yet! Please recheck the method later!');
+        throw new Exception('Not implemented yet! Please recheck the method later!');
         $collectionName = $collection->name;
         $collectionSchema = $collection->schema();
 
         $sql = 'SHOW TABLES LIKE "'.$collectionName.'"';
         $statement = $this->raw->query($sql);
-        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+        $row = $statement->fetch(PDO::FETCH_ASSOC);
         $tableExist = (empty($row)) ? false : true;
 
         $fields = array();
@@ -41,7 +43,7 @@ class MySQLDialect extends SQLDialect
             // fetch old table info
             $sql = 'DESCRIBE `'.$collectionName.'`';
             $statement = $this->raw->query($sql);
-            $describe = $statement->fetchAll(\PDO::FETCH_ASSOC);
+            $describe = $statement->fetchAll(PDO::FETCH_ASSOC);
             foreach ($describe as $key => $value) {
                 $fields[$value['name']] = $value;
             }
@@ -162,6 +164,7 @@ class MySQLDialect extends SQLDialect
                         break;
                 }
             }
+
             return '('.implode(' '.strtoupper(substr($key, 1)).' ', $wheres).')';
         }
 
@@ -185,6 +188,7 @@ class MySQLDialect extends SQLDialect
             switch ($splitted[1]) {
                 case 'like':
                     $fValue = "%$value%";
+                    $operator = 'LIKE';
                     break;
                 case 'lte':
                     $operator = '<=';
@@ -199,16 +203,16 @@ class MySQLDialect extends SQLDialect
                     $operator = '>';
                     break;
                 case 'regex':
-                    throw new \Exception('Operator regex is not supported to query.');
+                    throw new Exception('Operator regex is not supported to query.');
                     // return array($field, array('$regex', new \MongoRegex($value)));
                 case 'in':
                 case 'nin':
-                    throw new \Exception('Operator regex is not supported to query.');
+                    throw new Exception('Operator regex is not supported to query.');
                     // $operator = '$'.$splitted[1];
                     // $multiValue = true;
                     // break;
                 default:
-                    throw new \Exception('Operator regex is not supported to query.');
+                    throw new Exception('Operator regex is not supported to query.');
                     // $operator = '$'.$splitted[1];
                     // break;
             }

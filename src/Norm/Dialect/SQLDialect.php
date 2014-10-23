@@ -20,6 +20,7 @@ class SQLDialect
     public function listCollections()
     {
         $statement = $this->raw->query('SHOW TABLES');
+
         return $statement->fetchAll(\PDO::FETCH_ASSOC);
     }
 
@@ -42,12 +43,12 @@ class SQLDialect
         }
         $sql = 'CREATE TABLE '.$name.'(id INTEGER PRIMARY KEY  AUTOINCREMENT  NOT NULL, '.
             implode(', ', $fieldDefinitions).')';
+
         return $sql;
     }
 
     public function grammarExpression($key, $value, $collection, &$data)
     {
-
         if ($key === '!or' || $key === '!and') {
             $wheres = array();
             foreach ($value as $subValues) {
@@ -69,6 +70,7 @@ class SQLDialect
                         break;
                 }
             }
+
             return '('.implode(' '.strtoupper(substr($key, 1)).' ', $wheres).')';
         }
 
@@ -121,14 +123,13 @@ class SQLDialect
             }
         }
 
-
-
         $fk = 'f'.$this->expressionCounter++;
         $data[$fk] = $fValue;
+
         return $field.' '.$operator.' :'.$fk;
 
         $op = (isset($key[1])) ? $key[1] : '=';
-        switch($op) {
+        switch ($op) {
             case 'ne':
                 $op = '!=';
                 break;
@@ -146,7 +147,6 @@ class SQLDialect
                 break;
         }
 
-
         if ($op == 'in') {
             $fgroup = array();
             foreach ($value as $k => $v) {
@@ -161,10 +161,12 @@ class SQLDialect
             if (empty($fgroup)) {
                 return '(1)';
             }
+
             return $key . ' ' . $op . ' ('.implode(', ', $fgroup).')';
         } else {
             $this->expressionCounter++;
             $data['f'.$this->expressionCounter] = $value;
+
             return $key . ' ' . $op . ' :f' . $this->expressionCounter;
         }
     }
@@ -173,6 +175,7 @@ class SQLDialect
     {
         $statement = $this->raw->prepare($sql);
         $result = $statement->execute($data);
+
         return $result;
     }
 
@@ -212,7 +215,7 @@ class SQLDialect
 
         $id = null;
         if($result) $id = $this->raw->lastInsertId();
-        
+
         return $id;
     }
 
@@ -237,7 +240,6 @@ class SQLDialect
         }
 
         $sql = 'UPDATE '.$collectionName.' SET '.implode(', ', $sets) . ' WHERE id = :id';
-
 
         return $sql;
     }
