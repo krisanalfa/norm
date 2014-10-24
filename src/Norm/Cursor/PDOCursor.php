@@ -60,7 +60,19 @@ class PDOCursor implements ICursor
      */
     protected $current;
 
+    /**
+     * Limit fetched data from database
+     *
+     * @var int
+     */
     protected $limit;
+
+    /**
+     * Skip the cursor by n number
+     *
+     * @var int
+     */
+    protected $skip;
 
     /**
      * Construct cursor for particular statement
@@ -164,6 +176,13 @@ class PDOCursor implements ICursor
 
             if ($this->limit) {
                 $sql .= ' LIMIT '.$this->limit;
+            }
+
+            if ($this->skip) {
+                if (! $this->limit) {
+                    $sql .= ' LIMIT '.$this->count();
+                }
+                $sql .= ' OFFSET '.$this->skip;
             }
 
             $this->statement = $this->collection->connection->getRaw()->prepare($sql);
